@@ -73,6 +73,10 @@ describe('ReactDOMRoot', () => {
     expect(container.textContent).toEqual('Hi');
   });
 
+  it('accepts an injection', () => {
+    ReactDOM.inject(() => {});
+  });
+
   it('unmounts children', () => {
     const root = ReactDOM.unstable_createRoot(container);
     root.render(<div>Hi</div>);

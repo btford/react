@@ -19,12 +19,12 @@ let invokeGuardedCallback = function<A, B, C, D, E, F, Context>(
   d: D,
   e: E,
   f: F,
-) {
+): mixed {
   this._hasCaughtError = false;
   this._caughtError = null;
   const funcArgs = Array.prototype.slice.call(arguments, 3);
   try {
-    func.apply(context, funcArgs);
+    return func.apply(context, funcArgs);
   } catch (error) {
     this._caughtError = error;
     this._hasCaughtError = true;
@@ -95,6 +95,7 @@ if (__DEV__) {
       // fails to call our global error handler, because it doesn't rely on
       // the error event at all.
       let didError = true;
+      let returned = null;
 
       // Create an event handler for our fake event. We will synchronously
       // dispatch our fake event using `dispatchEvent`. Inside the handler, we
@@ -106,7 +107,7 @@ if (__DEV__) {
         // nested call would trigger the fake event handlers of any call higher
         // in the stack.
         fakeNode.removeEventListener(evtType, callCallback, false);
-        func.apply(context, funcArgs);
+        returned = func.apply(context, funcArgs);
         didError = false;
       }
 
@@ -187,6 +188,8 @@ if (__DEV__) {
 
       // Remove our event listeners
       window.removeEventListener('error', onError);
+
+      return returned;
     };
 
     invokeGuardedCallback = invokeGuardedCallbackDev;

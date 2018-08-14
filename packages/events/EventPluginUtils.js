@@ -67,13 +67,14 @@ if (__DEV__) {
 function executeDispatch(event, simulated, listener, inst) {
   const type = event.type || 'unknown-event';
   event.currentTarget = getNodeFromInstance(inst);
-  ReactErrorUtils.invokeGuardedCallbackAndCatchFirstError(
+  const returned = ReactErrorUtils.invokeGuardedCallbackAndCatchFirstError(
     type,
     listener,
     undefined,
     event,
   );
   event.currentTarget = null;
+  return returned;
 }
 
 /**
@@ -85,24 +86,31 @@ export function executeDispatchesInOrder(event, simulated) {
   if (__DEV__) {
     validateEventDispatches(event);
   }
+  const returned = [];
   if (Array.isArray(dispatchListeners)) {
     for (let i = 0; i < dispatchListeners.length; i++) {
       if (event.isPropagationStopped()) {
         break;
       }
       // Listeners and Instances are two parallel arrays that are always in sync.
-      executeDispatch(
-        event,
-        simulated,
-        dispatchListeners[i],
-        dispatchInstances[i],
+      returned.push(
+        executeDispatch(
+          event,
+          simulated,
+          dispatchListeners[i],
+          dispatchInstances[i],
+        ),
       );
     }
   } else if (dispatchListeners) {
-    executeDispatch(event, simulated, dispatchListeners, dispatchInstances);
+    returned.push(
+      executeDispatch(event, simulated, dispatchListeners, dispatchInstances),
+    );
   }
   event._dispatchListeners = null;
   event._dispatchInstances = null;
+
+  return returned;
 }
 
 /**

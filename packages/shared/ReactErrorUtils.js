@@ -42,8 +42,8 @@ const ReactErrorUtils = {
     d: D,
     e: E,
     f: F,
-  ): void {
-    invokeGuardedCallback.apply(ReactErrorUtils, arguments);
+  ): mixed {
+    return invokeGuardedCallback.apply(ReactErrorUtils, arguments);
   },
 
   /**
@@ -66,8 +66,11 @@ const ReactErrorUtils = {
     d: D,
     e: E,
     f: F,
-  ): void {
-    ReactErrorUtils.invokeGuardedCallback.apply(this, arguments);
+  ): mixed {
+    const returned = ReactErrorUtils.invokeGuardedCallback.apply(
+      this,
+      arguments,
+    );
     if (ReactErrorUtils.hasCaughtError()) {
       const error = ReactErrorUtils.clearCaughtError();
       if (!ReactErrorUtils._hasRethrowError) {
@@ -75,6 +78,7 @@ const ReactErrorUtils = {
         ReactErrorUtils._rethrowError = error;
       }
     }
+    return returned;
   },
 
   /**

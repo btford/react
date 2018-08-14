@@ -567,7 +567,7 @@ function callCallback(callback, context) {
       'received: %s',
     callback,
   );
-  callback.call(context);
+  return callback.call(context);
 }
 
 export function resetHasForceUpdateBeforeProcessing() {
